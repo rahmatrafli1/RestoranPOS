@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Tables (Admin only for CUD, Kasir can read)
-    Route::middleware('role:admin,kasir')->group(function () {
+    Route::middleware('role:admin,cashier')->group(function () {
         Route::get('tables', [TableController::class, 'index']);
         Route::get('tables/available', [TableController::class, 'available']);
         Route::get('tables/{table}', [TableController::class, 'show']);
@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Orders
-    Route::middleware('role:admin,kasir')->group(function () {
+    Route::middleware('role:admin,cashier')->group(function () {
         Route::get('orders', [OrderController::class, 'index']);
         Route::post('orders', [OrderController::class, 'store']);
         Route::get('orders/{order}', [OrderController::class, 'show']);
@@ -66,13 +66,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Kitchen (Dapur can access)
-    Route::middleware('role:admin,dapur')->group(function () {
+    Route::middleware('role:admin,chef,waiter')->group(function () {
         Route::get('orders/kitchen/display', [OrderController::class, 'kitchen']);
         Route::put('order-items/{orderItem}/status', [OrderController::class, 'updateItemStatus']);
     });
 
     // Payments (Kasir only)
-    Route::middleware('role:admin,kasir')->group(function () {
+    Route::middleware('role:admin,cashier')->group(function () {
         Route::post('orders/{order}/payment', [PaymentController::class, 'store']);
         Route::get('payments/{payment}', [PaymentController::class, 'show']);
         Route::get('orders/{order}/payment', [PaymentController::class, 'getByOrder']);
