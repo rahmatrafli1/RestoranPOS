@@ -6,6 +6,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import CategoryList from './pages/categories/CategoryList';
 import MenuList from './pages/menu/MenuList';
 import TableList from './pages/tables/TableList';
+import POSPage from './pages/pos/POSPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 
@@ -46,6 +47,16 @@ function App() {
                   {/* Dashboard */}
                   <Route path="/dashboard" element={<Dashboard />} />
                   
+                  {/* POS - Cashier & Waiter */}
+                  <Route 
+                    path="/pos" 
+                    element={
+                      <ProtectedRoute allowedRoles={['cashier', 'waiter']}>
+                        <POSPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
                   {/* Categories - Admin only */}
                   <Route 
                     path="/categories" 
@@ -77,7 +88,6 @@ function App() {
                   />
                   
                   {/* Placeholders for future routes */}
-                  <Route path="/pos" element={<NotFound />} />
                   <Route path="/orders" element={<NotFound />} />
                   <Route path="/kitchen" element={<NotFound />} />
                   <Route path="/reports" element={<NotFound />} />

@@ -1,82 +1,98 @@
-// filepath: resources/js/store/slices/cartSlice.js
-
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   items: [],
   orderType: 'dine_in',
-  tableId: null,
-  customerName: '',
-  notes: '',
+  table_id: null,
+  customer_name: '',
+  subtotal: 0,
+  tax: 0,
   discount: 0,
+  total: 0,
+};
+
+const calculateTotals = (items, discount = 0) => {
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * 0.1; // 10% tax
+  const total = subtotal + tax - discount;
+
+  return { subtotal, tax, total };
 };
 
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addItem: (state, action) => {
-      const existingItem = state.items.find(
-        (item) => item.menu_item_id === action.payload.menu_item_id
-      );
+    addToCart: (state, action) => {
+      const item = action.payload;
+      const existingItem = state.items.find((i) => i.id === item.id);
 
       if (existingItem) {
-        existingItem.quantity += action.payload.quantity;
-        existingItem.subtotal = existingItem.quantity * existingItem.price;
+        existingItem.quantity += 1;
       } else {
-        state.items.push({
-          ...action.payload,
-          subtotal: action.payload.quantity * action.payload.price,
-        });
+        state.items.push({ ...item, quantity: 1, notes: '' });
       }
+
+      const totals = calculateTotals(state.items, state.discount);
+      state.subtotal = totals.subtotal;
+      state.tax = totals.tax;
+      state.total = totals.total;
     },
 
-    removeItem: (state, action) => {
-      state.items = state.items.filter(
-        (item) => item.menu_item_id !== action.payload
-      );
+    removeFromCart: (state, action) => {
+      state.items = state.items.filter((item) => item.id !== action.payload);
+
+      const totals = calculateTotals(state.items, state.discount);
+      state.subtotal = totals.subtotal;
+      state.tax = totals.tax;
+      state.total = totals.total;
     },
 
     updateQuantity: (state, action) => {
-      const { menu_item_id, quantity } = action.payload;
-      const item = state.items.find((item) => item.menu_item_id === menu_item_id);
-      
+      const { id, quantity } = action.payload;
+      const item = state.items.find((i) => i.id === id);
+
       if (item) {
         item.quantity = quantity;
-        item.subtotal = item.quantity * item.price;
       }
+
+      const totals = calculateTotals(state.items, state.discount);
+      state.subtotal = totals.subtotal;
+      state.tax = totals.tax;
+      state.total = totals.total;
     },
 
     updateItemNotes: (state, action) => {
-      const { menu_item_id, notes } = action.payload;
-      const item = state.items.find((item) => item.menu_item_id === menu_item_id);
-      
+      const { id, notes } = action.payload;
+      const item = state.items.find((i) => i.id === id);
+
       if (item) {
         item.notes = notes;
       }
     },
 
+    setDiscount: (state, action) => {
+      state.discount = action.payload;
+
+      const totals = calculateTotals(state.items, state.discount);
+      state.subtotal = totals.subtotal;
+      state.tax = totals.tax;
+      state.total = totals.total;
+    },
+
     setOrderType: (state, action) => {
       state.orderType = action.payload;
+      
+      // Clear table selection if not dine-in
       if (action.payload !== 'dine_in') {
-        state.tableId = null;
+        state.table_id = null;
       }
     },
 
-    setTableId: (state, action) => {
-      state.tableId = action.payload;
-    },
-
-    setCustomerName: (state, action) => {
-      state.customerName = action.payload;
-    },
-
-    setNotes: (state, action) => {
-      state.notes = action.payload;
-    },
-
-    setDiscount: (state, action) => {
-      state.discount = action.payload;
+    setCustomerInfo: (state, action) => {
+      const { table_id, customer_name } = action.payload;
+      if (table_id !== undefined) state.table_id = table_id;
+      if (customer_name !== undefined) state.customer_name = customer_name;
     },
 
     clearCart: (state) => {
@@ -86,29 +102,14 @@ const cartSlice = createSlice({
 });
 
 export const {
-  addItem,
-  removeItem,
+  addToCart,
+  removeFromCart,
   updateQuantity,
   updateItemNotes,
-  setOrderType,
-  setTableId,
-  setCustomerName,
-  setNotes,
   setDiscount,
+  setOrderType,
+  setCustomerInfo,
   clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
-
-export const selectCartItems = (state) => state.cart.items;
-export const selectCartSubtotal = (state) =>
-  state.cart.items.reduce((total, item) => total + parseFloat(item.subtotal), 0);
-export const selectCartTax = (state) => {
-  const subtotal = selectCartSubtotal(state);
-  return subtotal * 0.1;
-};
-export const selectCartTotal = (state) => {
-  const subtotal = selectCartSubtotal(state);
-  const tax = selectCartTax(state);
-  return subtotal + tax - state.cart.discount;
-};
