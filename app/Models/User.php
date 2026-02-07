@@ -17,32 +17,61 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+    protected $guarded = [];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function role()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'paid_by');
+    }
+
+    public function orderLogs()
+    {
+        return $this->hasMany(OrderLog::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByRole($query, $roleName)
+    {
+        return $query->whereHas('role', function ($q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
+    public function isAdmin()
+    {
+        return $this->role && $this->role->name === 'admin';
+    }
+
+    public function isCashier()
+    {
+        return $this->role && $this->role->name === 'cashier';
+    }
+
+    public function isWaiter()
+    {
+        return $this->role && $this->role->name === 'waiter';
+    }
+
+    public function isChef()
+    {
+        return $this->role && $this->role->name === 'chef';
     }
 }
