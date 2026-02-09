@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { HiPlus, HiPencil, HiTrash, HiSearch } from "react-icons/hi";
+import {
+    HiPlus,
+    HiPencil,
+    HiTrash,
+    HiSearch,
+    HiChevronLeft,
+    HiChevronRight,
+} from "react-icons/hi";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
@@ -17,9 +24,18 @@ const CategoryList = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(4); // Default 4 items per page
+
     useEffect(() => {
         fetchCategories();
     }, []);
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const fetchCategories = async () => {
         try {
@@ -63,9 +79,32 @@ const CategoryList = () => {
         fetchCategories();
     };
 
+    // Filter categories
     const filteredCategories = categories.filter((category) =>
         category.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredCategories.slice(
+        indexOfFirstItem,
+        indexOfLastItem,
+    );
+
+    // Pagination handlers
+    const goToNextPage = () => {
+        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    };
+
+    const goToPrevPage = () => {
+        setCurrentPage((prev) => Math.max(prev - 1, 1));
+    };
+
+    const goToPage = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     if (loading) {
         return <Loading fullScreen text="Loading categories..." />;
@@ -80,7 +119,8 @@ const CategoryList = () => {
                         Categories
                     </h1>
                     <p className="text-sm text-gray-600 mt-1">
-                        Manage menu categories
+                        Manage menu categories ({filteredCategories.length}{" "}
+                        total)
                     </p>
                 </div>
                 <Button
@@ -109,7 +149,7 @@ const CategoryList = () => {
 
             {/* Categories Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredCategories.map((category) => (
+                {currentItems.map((category) => (
                     <Card
                         key={category.id}
                         className="hover:shadow-lg transition-shadow"
@@ -197,6 +237,94 @@ const CategoryList = () => {
                                 ? "Try adjusting your search"
                                 : "Get started by creating a new category"}
                         </p>
+                    </div>
+                </Card>
+            )}
+
+            {/* Pagination */}
+            {filteredCategories.length > 0 && totalPages > 1 && (
+                <Card>
+                    <div className="flex items-center justify-between">
+                        {/* Showing info */}
+                        <div className="text-sm text-gray-600">
+                            Showing {indexOfFirstItem + 1} to{" "}
+                            {Math.min(
+                                indexOfLastItem,
+                                filteredCategories.length,
+                            )}{" "}
+                            of {filteredCategories.length} categories
+                        </div>
+
+                        {/* Pagination controls */}
+                        <div className="flex items-center gap-2">
+                            {/* Previous button */}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={goToPrevPage}
+                                disabled={currentPage === 1}
+                                className="gap-1"
+                            >
+                                <HiChevronLeft className="h-4 w-4" />
+                                Previous
+                            </Button>
+
+                            {/* Page numbers */}
+                            <div className="flex items-center gap-1">
+                                {[...Array(totalPages)].map((_, index) => {
+                                    const pageNumber = index + 1;
+
+                                    // Show first page, last page, current page, and pages around current
+                                    if (
+                                        pageNumber === 1 ||
+                                        pageNumber === totalPages ||
+                                        (pageNumber >= currentPage - 1 &&
+                                            pageNumber <= currentPage + 1)
+                                    ) {
+                                        return (
+                                            <button
+                                                key={pageNumber}
+                                                onClick={() =>
+                                                    goToPage(pageNumber)
+                                                }
+                                                className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                                                    currentPage === pageNumber
+                                                        ? "bg-primary-600 text-white font-semibold"
+                                                        : "text-gray-600 hover:bg-gray-100"
+                                                }`}
+                                            >
+                                                {pageNumber}
+                                            </button>
+                                        );
+                                    } else if (
+                                        pageNumber === currentPage - 2 ||
+                                        pageNumber === currentPage + 2
+                                    ) {
+                                        return (
+                                            <span
+                                                key={pageNumber}
+                                                className="px-2 text-gray-400"
+                                            >
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </div>
+
+                            {/* Next button */}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={goToNextPage}
+                                disabled={currentPage === totalPages}
+                                className="gap-1"
+                            >
+                                Next
+                                <HiChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 </Card>
             )}
