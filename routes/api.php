@@ -1,5 +1,4 @@
 <?php
-// filepath: routes/api.php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +10,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +27,25 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Users (Admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('users', [UserController::class, 'index']);
+        Route::get('users/statistics', [UserController::class, 'statistics']);
+        Route::get('users/roles', [UserController::class, 'getRoles']);
+        Route::get('users/search', [UserController::class, 'search']);
+        Route::get('users/check-username', [UserController::class, 'checkUsername']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::get('users/{id}', [UserController::class, 'show']);
+        Route::put('users/{id}', [UserController::class, 'update']);
+        Route::delete('users/{id}', [UserController::class, 'destroy']);
+        Route::put('users/{id}/status', [UserController::class, 'updateStatus']);
+        Route::put('users/{id}/activate', [UserController::class, 'activate']);
+        Route::put('users/{id}/deactivate', [UserController::class, 'deactivate']);
+        Route::put('users/{id}/reset-password', [UserController::class, 'resetPassword']);
+        Route::post('users/bulk-delete', [UserController::class, 'bulkDelete']);
+        Route::put('users/bulk-update', [UserController::class, 'bulkUpdate']);
+    });
 
     // Categories (Admin only)
     Route::middleware('role:admin')->group(function () {
@@ -45,7 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Tables (Admin only for CUD, Kasir can read)
-    Route::middleware('role:admin,cashier')->group(function () {
+    Route::middleware('role:admin,cashier,waiter')->group(function () {
         Route::get('tables', [TableController::class, 'index']);
         Route::get('tables/available', [TableController::class, 'available']);
         Route::get('tables/{table}', [TableController::class, 'show']);
@@ -58,7 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Orders
-    Route::middleware('role:admin,cashier')->group(function () {
+    Route::middleware('role:admin,cashier,waiter')->group(function () {
         Route::get('orders', [OrderController::class, 'index']);
         Route::post('orders', [OrderController::class, 'store']);
         Route::get('orders/{order}', [OrderController::class, 'show']);

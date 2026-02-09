@@ -43,7 +43,6 @@ const SettingsPage = () => {
         resolver: yupResolver(profileSchema),
         defaultValues: {
             name: "",
-            email: "",
         },
     });
 
@@ -63,8 +62,7 @@ const SettingsPage = () => {
     useEffect(() => {
         if (user) {
             resetProfile({
-                name: user.name || "",
-                email: user.email || "",
+                name: user.full_name || "",
             });
         }
     }, [user, resetProfile]);
@@ -139,13 +137,13 @@ const SettingsPage = () => {
                             <div className="h-16 w-16 flex-shrink-0">
                                 <div className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center">
                                     <span className="text-primary-700 font-bold text-2xl">
-                                        {user?.name?.charAt(0).toUpperCase()}
+                                        {user?.username?.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
                             </div>
                             <div>
                                 <p className="font-semibold text-gray-900">
-                                    {user?.name}
+                                    {user?.full_name}
                                 </p>
                                 <p className="text-sm text-gray-600">
                                     @{user?.username}
@@ -163,16 +161,6 @@ const SettingsPage = () => {
                                 error={errorsProfile.name?.message}
                                 placeholder="John Doe"
                                 required
-                            />
-                        </div>
-
-                        <div>
-                            <Input
-                                label="Email"
-                                type="email"
-                                {...registerProfile("email")}
-                                error={errorsProfile.email?.message}
-                                placeholder="john@example.com"
                             />
                         </div>
 
