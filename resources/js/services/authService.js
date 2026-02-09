@@ -5,7 +5,6 @@ import api from "./api";
 const authService = {
     login: async (credentials) => {
         const response = await api.post("/login", credentials);
-        console.log("Login response:", response.data); // Debug
         if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
         }
@@ -21,7 +20,6 @@ const authService = {
 
     me: async () => {
         const response = await api.get("/me");
-        console.log("Me response:", response.data); // Debug
         if (response.data) {
             localStorage.setItem("user", JSON.stringify(response.data));
         }

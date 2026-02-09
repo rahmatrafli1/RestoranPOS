@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,5 +87,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('reports/popular-items', [ReportController::class, 'popularItems']);
         Route::get('reports/sales-by-category', [ReportController::class, 'salesByCategory']);
         Route::get('reports/payment-methods', [ReportController::class, 'paymentMethods']);
+    });
+
+    // Notifications (All authenticated users can access)
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        Route::delete('/', [NotificationController::class, 'clearAll']);
     });
 });

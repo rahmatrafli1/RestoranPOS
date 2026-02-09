@@ -8,6 +8,7 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Table;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,23 @@ class PaymentController extends Controller
                 Table::find($order->table_id)->update(['status' => 'available']);
             }
 
+            // Tambahkan notifikasi pembayaran
+            Notification::create([
+                'user_id' => null, // Broadcast ke semua user
+                'type' => 'payment',
+                'title' => 'Payment Received',
+                'message' => "Payment of Rp " . number_format($amount, 0, ',', '.') . " received for Order #{$order->order_number}",
+                'data' => [
+                    'payment_id' => $payment->id,
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'amount' => $amount,
+                    'payment_method' => $request->payment_method,
+                    'table_number' => $order->table ? $order->table->table_number : null,
+                ],
+                'is_read' => false,
+            ]);
+
             DB::commit();
 
             $payment->load(['order', 'cashier']);
@@ -54,7 +72,6 @@ class PaymentController extends Controller
                 'message' => 'Payment processed successfully',
                 'data' => $payment
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

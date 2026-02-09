@@ -1,26 +1,56 @@
-import React from "react";
+import React, { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { HiBell, HiMenu, HiX, HiUser, HiCog, HiLogout } from "react-icons/hi";
 import { useAuth } from "../../hooks/useAuth";
 import { useNotifications } from "../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
-import { HiMenu, HiX, HiBell, HiUser, HiLogout, HiCog } from "react-icons/hi";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     const { user, logout } = useAuth();
     const { notifications, unreadCount, markAsRead } = useNotifications();
     const navigate = useNavigate();
 
-    // Ambil 5 notifikasi terbaru untuk tampil di dropdown
-    const recentNotifications = notifications.slice(0, 5);
-
     const handleNotificationClick = (notification) => {
-        markAsRead(notification.id);
-        navigate("/notifications");
+        if (!notification.is_read) {
+            markAsRead(notification.id);
+        }
+        // Navigate berdasarkan tipe notifikasi
+        if (notification.data?.order_id) {
+            navigate(`/orders/${notification.data.order_id}`);
+        }
     };
 
     const handleViewAll = () => {
         navigate("/notifications");
+    };
+
+    // Ambil 5 notifikasi terbaru
+    const recentNotifications = notifications.slice(0, 5);
+
+    const formatTime = (timestamp) => {
+        try {
+            return formatDistanceToNow(new Date(timestamp), {
+                addSuffix: true,
+            });
+        } catch (error) {
+            return timestamp;
+        }
+    };
+
+    const getNotificationIcon = (type) => {
+        switch (type) {
+            case "order":
+                return "🛒";
+            case "payment":
+                return "💰";
+            case "alert":
+                return "⚠️";
+            case "stock":
+                return "📦";
+            default:
+                return "🔔";
+        }
     };
 
     return (
@@ -72,8 +102,8 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                             <Menu.Button className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative">
                                 <HiBell className="h-6 w-6" />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-1 right-1 h-4 w-4 bg-danger-500 text-white text-xs rounded-full flex items-center justify-center">
-                                        {unreadCount}
+                                    <span className="absolute top-0 right-0 h-5 w-5 bg-danger-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                                        {unreadCount > 9 ? "9+" : unreadCount}
                                     </span>
                                 )}
                             </Menu.Button>
@@ -86,10 +116,15 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                 leaveFrom="transform opacity-100 scale-100"
                                 leaveTo="transform opacity-0 scale-95"
                             >
-                                <Menu.Items className="absolute right-0 mt-2 w-80 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <Menu.Items className="absolute right-0 mt-2 w-96 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                     <div className="p-4 border-b border-gray-200">
                                         <h3 className="text-sm font-semibold text-gray-900">
                                             Notifications
+                                            {unreadCount > 0 && (
+                                                <span className="ml-2 text-xs text-primary-600">
+                                                    ({unreadCount} new)
+                                                </span>
+                                            )}
                                         </h3>
                                     </div>
                                     <div className="max-h-96 overflow-y-auto">
@@ -110,26 +145,50 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                                                     active
                                                                         ? "bg-gray-50"
                                                                         : ""
-                                                                } ${notification.unread ? "bg-primary-50" : ""}`}
+                                                                } ${!notification.is_read ? "bg-primary-50" : ""}`}
                                                             >
-                                                                <p className="text-sm text-gray-900">
-                                                                    {
-                                                                        notification.message
-                                                                    }
-                                                                </p>
-                                                                <p className="text-xs text-gray-500 mt-1">
-                                                                    {
-                                                                        notification.time
-                                                                    }
-                                                                </p>
+                                                                <div className="flex items-start gap-3">
+                                                                    <span className="text-xl flex-shrink-0">
+                                                                        {getNotificationIcon(
+                                                                            notification.type,
+                                                                        )}
+                                                                    </span>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <p
+                                                                            className={`text-sm ${
+                                                                                !notification.is_read
+                                                                                    ? "font-semibold text-gray-900"
+                                                                                    : "text-gray-700"
+                                                                            }`}
+                                                                        >
+                                                                            {
+                                                                                notification.title
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                                                                            {
+                                                                                notification.message
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-500 mt-1">
+                                                                            {formatTime(
+                                                                                notification.created_at,
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                    {!notification.is_read && (
+                                                                        <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0 mt-2"></span>
+                                                                    )}
+                                                                </div>
                                                             </button>
                                                         )}
                                                     </Menu.Item>
                                                 ),
                                             )
                                         ) : (
-                                            <div className="px-4 py-6 text-center text-sm text-gray-500">
-                                                No notifications
+                                            <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                                <HiBell className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                                                <p>No notifications</p>
                                             </div>
                                         )}
                                     </div>

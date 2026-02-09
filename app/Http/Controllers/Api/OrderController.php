@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderLog;
 use App\Models\Table;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +65,7 @@ class OrderController extends Controller
 
             foreach ($request->items as $item) {
                 $menuItem = \App\Models\MenuItem::findOrFail($item['menu_item_id']);
-                
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'menu_item_id' => $item['menu_item_id'],
@@ -84,6 +85,27 @@ class OrderController extends Controller
                 'user_id' => Auth::id(),
                 'action' => 'created',
                 'new_value' => 'Order created',
+            ]);
+
+            // Tambahkan notifikasi order baru
+            $tableInfo = $request->table_id ? "Table " . optional(Table::find($request->table_id))->table_number : "Takeaway";
+            $itemCount = count($request->items);
+
+            Notification::create([
+                'user_id' => null, // Broadcast ke semua user
+                'type' => 'order',
+                'title' => 'New Order Received',
+                'message' => "Order #{$orderNumber} has been placed for {$tableInfo} with {$itemCount} item(s)",
+                'data' => [
+                    'order_id' => $order->id,
+                    'order_number' => $orderNumber,
+                    'order_type' => $request->order_type,
+                    'table_id' => $request->table_id,
+                    'table_number' => optional(Table::find($request->table_id))->table_number,
+                    'customer_name' => $request->customer_name,
+                    'item_count' => $itemCount,
+                ],
+                'is_read' => false,
             ]);
 
             DB::commit();
@@ -131,6 +153,23 @@ class OrderController extends Controller
             'new_value' => $request->status,
         ]);
 
+        // Tambahkan notifikasi perubahan status order
+        if ($request->status === 'ready') {
+            Notification::create([
+                'user_id' => null,
+                'type' => 'order',
+                'title' => 'Order Ready',
+                'message' => "Order #{$order->order_number} is now ready to serve",
+                'data' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'status' => $request->status,
+                    'table_number' => optional($order->table)->table_number,
+                ],
+                'is_read' => false,
+            ]);
+        }
+
         return response()->json([
             'message' => 'Order status successfully updated',
             'data' => $order
@@ -143,7 +182,7 @@ class OrderController extends Controller
 
         $order = $orderItem->order;
         $allReady = $order->orderItems()->where('status', '!=', 'ready')->count() === 0;
-        
+
         if ($allReady && $order->status === 'preparing') {
             $order->update(['status' => 'ready']);
         }
@@ -182,7 +221,7 @@ class OrderController extends Controller
     {
         $date = now()->format('Ymd');
         $count = Order::whereDate('created_at', today())->count() + 1;
-        
+
         return 'ORD' . $date . str_pad($count, 4, '0', STR_PAD_LEFT);
     }
 }

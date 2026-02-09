@@ -94,19 +94,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-0 left-0 z-20 h-full w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out ${
+                className={`fixed top-16 left-0 bottom-0 z-20 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out ${
                     sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                } lg:translate-x-0 lg:static lg:h-[calc(100vh-4rem)]`}
+                } lg:translate-x-0 lg:static lg:top-0 lg:h-screen`}
             >
-                <div className="flex flex-col h-full pt-20 lg:pt-0">
+                <div className="flex flex-col h-full">
                     {/* User info - Mobile only */}
-                    <div className="p-4 border-b border-gray-200 lg:hidden">
+                    <div className="p-4 border-b border-gray-200 lg:hidden flex-shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
                                 {user?.username?.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-900">
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
                                     {user?.full_name}
                                 </p>
                                 <p className="text-xs text-gray-500 capitalize">
@@ -140,10 +140,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     </nav>
 
                     {/* Footer */}
-                    <div className="p-4 border-t border-gray-200">
+                    <div className="p-4 border-t border-gray-200 flex-shrink-0">
                         <div className="text-xs text-gray-500 text-center">
-                            <p>RestoranPOS v1.0</p>
-                            <p className="mt-1">© {new Date().getFullYear()} All rights reserved</p>
+                            <p className="font-medium">RestoranPOS v1.0</p>
+                            <p className="mt-1">
+                                © {new Date().getFullYear()} All rights reserved
+                            </p>
                         </div>
                     </div>
                 </div>
