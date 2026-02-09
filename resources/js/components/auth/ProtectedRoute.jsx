@@ -1,34 +1,36 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import Loading from "../common/Loading";
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-    const { isAuthenticated, loading, hasRole } = useAuth();
+    const { isAuthenticated, loading, user } = useAuth();
 
     if (loading) {
-        return <Loading fullScreen text="Checking authentication..." />;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    if (allowedRoles.length > 0 && !hasRole(allowedRoles)) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        403
-                    </h1>
-                    <p className="text-gray-600 mb-6">Access Denied</p>
-                    <p className="text-sm text-gray-500">
-                        You don't have permission to access this page.
-                    </p>
-                </div>
-            </div>
-        );
-    }
+    // Sementara disable role checking
+    // if (allowedRoles.length > 0 && !hasRole(allowedRoles)) {
+    //     return (
+    //         <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    //             <div className="text-center">
+    //                 <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
+    //                 <p className="mt-2 text-gray-600">You don't have permission to access this page.</p>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return children;
 };

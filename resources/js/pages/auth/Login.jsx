@@ -206,7 +206,7 @@ const Login = () => {
 
                 {/* Footer */}
                 <p className="mt-6 text-center text-sm text-gray-600">
-                    © 2026 RestoranPOS. All rights reserved.
+                    © {new Date().getFullYear()} RestoranPOS. All rights reserved.
                 </p>
             </div>
         </div>

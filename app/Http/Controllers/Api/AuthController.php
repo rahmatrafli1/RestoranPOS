@@ -1,5 +1,4 @@
 <?php
-// filepath: app/Http/Controllers/Api/AuthController.php
 
 namespace App\Http\Controllers\Api;
 
@@ -35,7 +34,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'username' => $user->username,
                 'full_name' => $user->full_name,
-                'role' => $user->role->name,
+                'role' => $user->role->name ?? $user->role, // Handle jika role adalah object atau string
             ],
             'token' => $token,
         ]);
@@ -52,8 +51,15 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = $request->user();
+
         return response()->json([
-            'user' => $request->user()
+            'id' => $user->id,
+            'username' => $user->username,
+            'full_name' => $user->full_name,
+            'email' => $user->email,
+            'role' => $user->role->name ?? $user->role, // Handle jika role adalah object atau string
+            'is_active' => $user->is_active,
         ]);
     }
 }

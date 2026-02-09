@@ -1,162 +1,61 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import Login from './pages/auth/Login';
-import Dashboard from './pages/dashboard/Dashboard';
-import CategoryList from './pages/categories/CategoryList';
-import MenuList from './pages/menu/MenuList';
-import TableList from './pages/tables/TableList';
-import POSPage from './pages/pos/POSPage';
-import OrderList from './pages/orders/OrderList';
-import OrderDetail from './pages/orders/OrderDetail';
-import KitchenDisplay from './pages/kitchen/KitchenDisplay';
-import UserList from './pages/users/UserList';
-import ReportsPage from './pages/reports/ReportsPage';
-import SettingsPage from './pages/settings/SettingsPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import MainLayout from './components/layout/MainLayout';
+import React, { useEffect } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { store } from "./store";
+import { Toaster } from "react-hot-toast";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import AppRouter from "./router";
+import { fetchUser, setLoading } from "./store/slices/authSlice";
 
-// Placeholder components
-const NotFound = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="text-center">
-      <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-      <p className="text-xl text-gray-600 mb-6">Page not found</p>
-      <a href="/dashboard" className="text-primary-600 hover:text-primary-700 font-medium">
-        Back to Dashboard
-      </a>
-    </div>
-  </div>
-);
+// Component untuk handle auth initialization
+const AuthInitializer = ({ children }) => {
+    const dispatch = useDispatch();
+    const { loading } = useSelector((state) => state.auth);
 
-function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+    useEffect(() => {
+        const initAuth = async () => {
+            const token = localStorage.getItem("token");
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Routes>
-        {/* Public Routes */}
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? <Navigate to="/dashboard" /> : <Login />
-          } 
-        />
-        
-        {/* Protected Routes with Layout */}
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Routes>
-                  {/* Dashboard - All roles */}
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  
-                  {/* POS - Cashier & Waiter */}
-                  <Route 
-                    path="/pos" 
-                    element={
-                      <ProtectedRoute allowedRoles={['cashier', 'waiter']}>
-                        <POSPage />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Orders - Admin, Cashier, Waiter */}
-                  <Route 
-                    path="/orders" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin', 'cashier', 'waiter']}>
-                        <OrderList />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/orders/:id" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin', 'cashier', 'waiter']}>
-                        <OrderDetail />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Kitchen Display - Chef & Admin */}
-                  <Route 
-                    path="/kitchen" 
-                    element={
-                      <ProtectedRoute allowedRoles={['chef', 'admin']}>
-                        <KitchenDisplay />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Categories - Admin only */}
-                  <Route 
-                    path="/categories" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <CategoryList />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Menu Items - Admin only */}
-                  <Route 
-                    path="/menu" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <MenuList />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Tables - Admin & Waiter */}
-                  <Route 
-                    path="/tables" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin', 'waiter']}>
-                        <TableList />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Users - Admin only */}
-                  <Route 
-                    path="/users" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <UserList />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Reports - Admin only */}
-                  <Route 
-                    path="/reports" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <ReportsPage />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Settings - All roles */}
-                  <Route path="/settings" element={<SettingsPage />} />
-                  
-                  {/* Default redirect */}
-                  <Route path="/" element={<Navigate to="/dashboard" />} />
-                  
-                  {/* 404 */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </div>
-  );
+            if (token) {
+                // Fetch user data jika ada token
+                await dispatch(fetchUser());
+            } else {
+                // Set loading false jika tidak ada token
+                dispatch(setLoading(false));
+            }
+        };
+
+        initAuth();
+    }, [dispatch]);
+
+    // Tampilkan loading saat checking auth
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    return children;
+};
+
+function MainApp() {
+    return (
+        <Provider store={store}>
+            <BrowserRouter>
+                <AuthInitializer>
+                    <NotificationProvider>
+                        <Toaster position="top-right" />
+                        <AppRouter />
+                    </NotificationProvider>
+                </AuthInitializer>
+            </BrowserRouter>
+        </Provider>
+    );
 }
 
-export default App;
+export default MainApp;

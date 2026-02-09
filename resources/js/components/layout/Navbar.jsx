@@ -1,33 +1,27 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useNotifications } from "../../contexts/NotificationContext";
+import { useNavigate } from "react-router-dom";
 import { HiMenu, HiX, HiBell, HiUser, HiLogout, HiCog } from "react-icons/hi";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     const { user, logout } = useAuth();
-    const [notifications] = useState([
-        {
-            id: 1,
-            message: "New order received",
-            time: "2 min ago",
-            unread: true,
-        },
-        {
-            id: 2,
-            message: "Table 5 needs attention",
-            time: "10 min ago",
-            unread: true,
-        },
-        {
-            id: 3,
-            message: "Low stock alert: Coca Cola",
-            time: "1 hour ago",
-            unread: false,
-        },
-    ]);
+    const { notifications, unreadCount, markAsRead } = useNotifications();
+    const navigate = useNavigate();
 
-    const unreadCount = notifications.filter((n) => n.unread).length;
+    // Ambil 5 notifikasi terbaru untuk tampil di dropdown
+    const recentNotifications = notifications.slice(0, 5);
+
+    const handleNotificationClick = (notification) => {
+        markAsRead(notification.id);
+        navigate("/notifications");
+    };
+
+    const handleViewAll = () => {
+        navigate("/notifications");
+    };
 
     return (
         <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full z-30 top-0">
@@ -99,31 +93,51 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                         </h3>
                                     </div>
                                     <div className="max-h-96 overflow-y-auto">
-                                        {notifications.map((notification) => (
-                                            <Menu.Item key={notification.id}>
-                                                {({ active }) => (
-                                                    <div
-                                                        className={`px-4 py-3 border-b border-gray-100 ${
-                                                            active
-                                                                ? "bg-gray-50"
-                                                                : ""
-                                                        } ${notification.unread ? "bg-primary-50" : ""}`}
+                                        {recentNotifications.length > 0 ? (
+                                            recentNotifications.map(
+                                                (notification) => (
+                                                    <Menu.Item
+                                                        key={notification.id}
                                                     >
-                                                        <p className="text-sm text-gray-900">
-                                                            {
-                                                                notification.message
-                                                            }
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            {notification.time}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </Menu.Item>
-                                        ))}
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleNotificationClick(
+                                                                        notification,
+                                                                    )
+                                                                }
+                                                                className={`w-full text-left px-4 py-3 border-b border-gray-100 ${
+                                                                    active
+                                                                        ? "bg-gray-50"
+                                                                        : ""
+                                                                } ${notification.unread ? "bg-primary-50" : ""}`}
+                                                            >
+                                                                <p className="text-sm text-gray-900">
+                                                                    {
+                                                                        notification.message
+                                                                    }
+                                                                </p>
+                                                                <p className="text-xs text-gray-500 mt-1">
+                                                                    {
+                                                                        notification.time
+                                                                    }
+                                                                </p>
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                ),
+                                            )
+                                        ) : (
+                                            <div className="px-4 py-6 text-center text-sm text-gray-500">
+                                                No notifications
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="p-3 text-center border-t border-gray-200">
-                                        <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                        <button
+                                            onClick={handleViewAll}
+                                            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                                        >
                                             View all notifications
                                         </button>
                                     </div>

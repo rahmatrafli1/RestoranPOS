@@ -9,9 +9,10 @@ const Button = ({
     fullWidth = false,
     disabled = false,
     loading = false,
+    icon: Icon, // Rename dan destructure icon
     onClick,
     className,
-    ...props
+    ...props // props lainnya yang valid untuk button HTML
 }) => {
     const baseClasses =
         "btn inline-flex items-center justify-center font-medium transition-all duration-200";
@@ -45,7 +46,7 @@ const Button = ({
             )}
             {...props}
         >
-            {loading && (
+            {loading ? (
                 <svg
                     className="animate-spin -ml-1 mr-2 h-4 w-4"
                     xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +67,9 @@ const Button = ({
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                 </svg>
-            )}
+            ) : Icon ? (
+                <Icon className="h-5 w-5 mr-2" />
+            ) : null}
             {children}
         </button>
     );
