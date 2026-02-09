@@ -202,47 +202,6 @@ const Login = () => {
                             {loading ? "Signing in..." : "Sign In"}
                         </Button>
                     </form>
-
-                    {/* Demo Credentials */}
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                        <p className="text-sm text-gray-600 text-center mb-3">
-                            Demo Credentials:
-                        </p>
-                        <div className="grid grid-cols-2 gap-3 text-xs">
-                            <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="font-semibold text-gray-700 mb-1">
-                                    Admin
-                                </p>
-                                <p className="text-gray-600">
-                                    admin / password
-                                </p>
-                            </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="font-semibold text-gray-700 mb-1">
-                                    Kasir
-                                </p>
-                                <p className="text-gray-600">
-                                    kasir1 / password
-                                </p>
-                            </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="font-semibold text-gray-700 mb-1">
-                                    Pelayan
-                                </p>
-                                <p className="text-gray-600">
-                                    pelayan1 / password
-                                </p>
-                            </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="font-semibold text-gray-700 mb-1">
-                                    Dapur
-                                </p>
-                                <p className="text-gray-600">
-                                    dapur1 / password
-                                </p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Footer */}

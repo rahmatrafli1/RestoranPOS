@@ -135,7 +135,7 @@ const MenuList = () => {
             {/* Image */}
             <div className="aspect-video bg-gray-100 overflow-hidden">
               <img
-                src={getImageUrl(item.image)}
+                src={getImageUrl(item.image_url)}
                 alt={item.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {

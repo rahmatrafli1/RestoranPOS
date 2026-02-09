@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -30,11 +31,11 @@ export const useAuth = () => {
 
   const hasRole = (roles) => {
     if (!user || !user.role) return false;
-    
+
     if (Array.isArray(roles)) {
       return roles.includes(user.role);
     }
-    
+
     return user.role === roles;
   };
 

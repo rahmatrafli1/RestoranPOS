@@ -103,11 +103,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     <div className="p-4 border-b border-gray-200 lg:hidden">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                                {user?.name?.charAt(0).toUpperCase()}
+                                {user?.username?.charAt(0).toUpperCase()}
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-900">
-                                    {user?.name}
+                                    {user?.full_name}
                                 </p>
                                 <p className="text-xs text-gray-500 capitalize">
                                     {user?.role}
@@ -143,7 +143,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     <div className="p-4 border-t border-gray-200">
                         <div className="text-xs text-gray-500 text-center">
                             <p>RestoranPOS v1.0</p>
-                            <p className="mt-1">© 2024 All rights reserved</p>
+                            <p className="mt-1">© 2026 All rights reserved</p>
                         </div>
                     </div>
                 </div>

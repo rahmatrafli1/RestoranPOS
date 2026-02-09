@@ -40,8 +40,8 @@ class MenuItemController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('menu-items', 'public');
+        if ($request->hasFile('image_url')) {
+            $path = $request->file('image_url')->store('menu-items', 'public');
             $data['image_url'] = $path;
         }
 
@@ -68,12 +68,12 @@ class MenuItemController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image_url')) {
             if ($menuItem->image_url) {
                 Storage::disk('public')->delete($menuItem->image_url);
             }
 
-            $path = $request->file('image')->store('menu-items', 'public');
+            $path = $request->file('image_url')->store('menu-items', 'public');
             $data['image_url'] = $path;
         }
 

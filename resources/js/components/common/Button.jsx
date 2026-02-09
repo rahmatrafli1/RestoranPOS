@@ -1,5 +1,3 @@
-// filepath: resources/js/components/common/Button.jsx
-
 import React from "react";
 import clsx from "clsx";
 

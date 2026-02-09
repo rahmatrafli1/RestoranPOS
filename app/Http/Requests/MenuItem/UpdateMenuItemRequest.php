@@ -41,7 +41,7 @@ class UpdateMenuItemRequest extends FormRequest
                 'min:0',
                 'max:99999999.99',
             ],
-            'image' => [
+            'image_url' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
@@ -75,9 +75,9 @@ class UpdateMenuItemRequest extends FormRequest
             'price.numeric' => 'Price must be a valid number.',
             'price.min' => 'Price must be at least 0.',
             'price.max' => 'Price may not be greater than 99999999.99.',
-            'image.image' => 'Image must be an image file.',
-            'image.mimes' => 'Image must be a file of type: jpeg, png, jpg, webp.',
-            'image.max' => 'Image may not be greater than 2MB.',
+            'image_url.image' => 'Image must be an image file.',
+            'image_url.mimes' => 'Image must be a file of type: jpeg, png, jpg, webp.',
+            'image_url.max' => 'Image may not be greater than 2MB.',
             'is_available.boolean' => 'Is Available must be true or false.',
             'preparation_time.integer' => 'Preparation Time must be a valid integer.',
             'preparation_time.min' => 'Preparation Time must be at least 1 minute.',

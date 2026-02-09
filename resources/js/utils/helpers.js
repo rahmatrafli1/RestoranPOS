@@ -79,9 +79,11 @@ export const hasRole = (user, roles) => {
 export const getImageUrl = (path) => {
     if (!path) return "/images/placeholder.png";
 
+    // Jika sudah URL lengkap, return langsung
     if (path.startsWith("http")) {
         return path;
     }
 
+    // Gunakan relative path
     return `/storage/${path}`;
 };
