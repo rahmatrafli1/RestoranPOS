@@ -57,6 +57,18 @@ class UserSeeder extends Seeder
                 'full_name' => 'Chef Two',
                 'role_id' => 4
             ],
+            [
+                'username' => 'guest1',
+                'password' => Hash::make('guest123'),
+                'full_name' => 'Guest One',
+                'role_id' => 5
+            ],
+            [
+                'username' => 'guest2',
+                'password' => Hash::make('guest123'),
+                'full_name' => 'Guest Two',
+                'role_id' => 5
+            ],
         ];
 
         foreach ($users as $user) {

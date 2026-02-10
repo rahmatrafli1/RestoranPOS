@@ -52,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('categories', CategoryController::class);
     });
 
-    Route::middleware('role:waiter')->group(function () {
+    Route::middleware('role:cashier,waiter')->group(function () {
         Route::get('categories', [CategoryController::class, 'index']);
         Route::get('categories/{category}', [CategoryController::class, 'show']);
     });
