@@ -52,6 +52,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('categories', CategoryController::class);
     });
 
+    Route::middleware('role:waiter')->group(function () {
+        Route::get('categories', [CategoryController::class, 'index']);
+        Route::get('categories/{category}', [CategoryController::class, 'show']);
+    });
+
     // Menu Items (Admin only for CUD, All for Read)
     Route::get('menu-items', [MenuItemController::class, 'index']);
     Route::get('menu-items/{menuItem}', [MenuItemController::class, 'show']);
@@ -70,7 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('tables/{table}', [TableController::class, 'show']);
     });
 
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:admin,cashier,waiter')->group(function () {
         Route::post('tables', [TableController::class, 'store']);
         Route::put('tables/{table}', [TableController::class, 'update']);
         Route::delete('tables/{table}', [TableController::class, 'destroy']);

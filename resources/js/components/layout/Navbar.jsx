@@ -25,6 +25,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
         navigate("/notifications");
     };
 
+    const handleSettings = () => {
+        navigate("/settings");
+    };
+
     // Ambil 5 notifikasi terbaru
     const recentNotifications = notifications.slice(0, 5);
 
@@ -208,14 +212,18 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                         <Menu as="div" className="relative">
                             <Menu.Button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                                    {user?.username?.charAt(0).toUpperCase()}
+                                    {user?.full_name?.charAt(0).toUpperCase() ||
+                                        user?.username
+                                            ?.charAt(0)
+                                            .toUpperCase() ||
+                                        "U"}
                                 </div>
                                 <div className="hidden sm:block text-left">
                                     <p className="text-sm font-medium text-gray-900">
-                                        {user?.full_name}
+                                        {user?.full_name || user?.username}
                                     </p>
                                     <p className="text-xs text-gray-500 capitalize">
-                                        {user?.role}
+                                        {user?.role?.name || user?.role}
                                     </p>
                                 </div>
                             </Menu.Button>
@@ -231,30 +239,19 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                 <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                     <div className="p-4 border-b border-gray-200">
                                         <p className="text-sm font-medium text-gray-900">
-                                            {user?.full_name}
+                                            {user?.full_name || user?.username}
                                         </p>
-                                        <p className="text-xs text-gray-500">
-                                            {user?.role}
+                                        <p className="text-xs text-gray-500 capitalize">
+                                            {user?.role?.display_name ||
+                                                user?.role?.name ||
+                                                user?.role}
                                         </p>
                                     </div>
                                     <div className="p-2">
                                         <Menu.Item>
                                             {({ active }) => (
                                                 <button
-                                                    className={`${
-                                                        active
-                                                            ? "bg-gray-100"
-                                                            : ""
-                                                    } group flex w-full items-center rounded-md px-3 py-2 text-sm text-gray-700`}
-                                                >
-                                                    <HiUser className="mr-3 h-5 w-5" />
-                                                    Profile
-                                                </button>
-                                            )}
-                                        </Menu.Item>
-                                        <Menu.Item>
-                                            {({ active }) => (
-                                                <button
+                                                    onClick={handleSettings}
                                                     className={`${
                                                         active
                                                             ? "bg-gray-100"

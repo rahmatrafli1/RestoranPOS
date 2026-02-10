@@ -17,36 +17,63 @@ export const login = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await authService.login(credentials);
-            localStorage.setItem("token", response.token);
-            localStorage.setItem("user", JSON.stringify(response.user));
-            return response;
+
+            const token = response.data?.token;
+            const user = response.data?.user || response.data?.data;
+
+            if (!token || !user) {
+                throw new Error("Invalid response from server");
+            }
+
+            // Token sudah disimpan di authService.login()
+            // Tapi double check
+            if (token) {
+                localStorage.setItem("token", token);
+            }
+
+            if (user) {
+                localStorage.setItem("user", JSON.stringify(user));
+            }
+
+            return { token, user };
         } catch (error) {
+            console.error("=== Login Error ===");
+            console.error("Error:", error);
             return rejectWithValue(
-                error.response?.data?.message || "Login failed",
+                error.response?.data?.message ||
+                    error.message ||
+                    "Login failed",
             );
         }
     },
 );
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-    try {
-        await authService.logout();
-    } catch (error) {
-        console.error("Logout error:", error);
-    } finally {
-        authService.clearStorage();
-    }
-});
+export const logout = createAsyncThunk(
+    "auth/logout",
+    async (_, { rejectWithValue }) => {
+        try {
+            await authService.logout();
+        } catch (error) {
+            // Still clear local storage even if API fails
+            authService.clearAuth();
+            return rejectWithValue(
+                error.response?.data?.message || "Logout failed",
+            );
+        }
+    },
+);
 
 export const fetchUser = createAsyncThunk(
     "auth/fetchUser",
     async (_, { rejectWithValue }) => {
         try {
-            const user = await authService.me();
-            localStorage.setItem("user", JSON.stringify(user));
+            const response = await authService.me();
+            const user =
+                response.data?.data || response.data?.user || response.data;
             return user;
         } catch (error) {
-            authService.clearStorage();
+            console.error("=== Fetch User Error ===");
+            console.error("Error:", error);
             return rejectWithValue(
                 error.response?.data?.message || "Failed to fetch user",
             );
@@ -71,6 +98,12 @@ const authSlice = createSlice({
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
+        },
+        updateUser: (state, action) => {
+            state.user = { ...state.user, ...action.payload };
+            if (state.user) {
+                localStorage.setItem("user", JSON.stringify(state.user));
+            }
         },
     },
     extraReducers: (builder) => {
@@ -104,24 +137,50 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.loading = false;
                 state.error = null;
+
+                // Clear localStorage
+                authService.clearAuth();
+            })
+            .addCase(logout.rejected, (state) => {
+                // Even if logout fails, clear state
+                state.user = null;
+                state.token = null;
+                state.isAuthenticated = false;
+                state.loading = false;
+
+                // Clear localStorage
+                authService.clearAuth();
             })
             // Fetch User
             .addCase(fetchUser.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
             .addCase(fetchUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload;
                 state.isAuthenticated = true;
+
+                // Save to localStorage
+                if (action.payload) {
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(action.payload),
+                    );
+                }
             })
             .addCase(fetchUser.rejected, (state) => {
                 state.loading = false;
                 state.user = null;
                 state.token = null;
                 state.isAuthenticated = false;
+
+                // Clear localStorage
+                authService.clearAuth();
             });
     },
 });
 
-export const { setUser, clearError, setLoading } = authSlice.actions;
+export const { setUser, clearError, setLoading, updateUser } =
+    authSlice.actions;
 export default authSlice.reducer;

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import { store } from "./store";
+import store from "./store";
 import { Toaster } from "react-hot-toast";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import AppRouter from "./router";
@@ -10,23 +10,26 @@ import { fetchUser, setLoading } from "./store/slices/authSlice";
 // Component untuk handle auth initialization
 const AuthInitializer = ({ children }) => {
     const dispatch = useDispatch();
-    const { loading } = useSelector((state) => state.auth);
+    const { loading, token, isAuthenticated } = useSelector(
+        (state) => state.auth,
+    );
 
     useEffect(() => {
         const initAuth = async () => {
-            const token = localStorage.getItem("token");
-
             if (token) {
-                // Fetch user data jika ada token
-                await dispatch(fetchUser());
+                try {
+                    await dispatch(fetchUser()).unwrap();
+                } catch (error) {
+                    console.error("❌ Failed to fetch user:", error);
+                    dispatch(setLoading(false));
+                }
             } else {
-                // Set loading false jika tidak ada token
                 dispatch(setLoading(false));
             }
         };
 
         initAuth();
-    }, [dispatch]);
+    }, [dispatch, token, isAuthenticated]);
 
     // Tampilkan loading saat checking auth
     if (loading) {
@@ -49,7 +52,30 @@ function MainApp() {
             <BrowserRouter>
                 <AuthInitializer>
                     <NotificationProvider>
-                        <Toaster position="top-right" />
+                        <Toaster
+                            position="top-right"
+                            toastOptions={{
+                                duration: 3000,
+                                style: {
+                                    background: "#363636",
+                                    color: "#fff",
+                                },
+                                success: {
+                                    duration: 3000,
+                                    iconTheme: {
+                                        primary: "#10b981",
+                                        secondary: "#fff",
+                                    },
+                                },
+                                error: {
+                                    duration: 4000,
+                                    iconTheme: {
+                                        primary: "#ef4444",
+                                        secondary: "#fff",
+                                    },
+                                },
+                            }}
+                        />
                         <AppRouter />
                     </NotificationProvider>
                 </AuthInitializer>

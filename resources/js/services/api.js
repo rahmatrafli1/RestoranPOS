@@ -3,35 +3,44 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+    baseURL: "/api",
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
 });
 
-// Request interceptor - Tambahkan token ke setiap request
+// Request interceptor
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
+
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
         return config;
     },
     (error) => {
+        console.error("Request Error:", error);
         return Promise.reject(error);
     },
 );
 
-// Response interceptor - Handle token expired
+// Response interceptor
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        return response;
+    },
     (error) => {
-        // Jika token expired atau unauthorized
+        console.error("=== API Error ===");
+        console.error("URL:", error.config?.url);
+        console.error("Status:", error.response?.status);
+        console.error("Data:", error.response?.data);
+
         if (error.response?.status === 401) {
+            // Token expired or invalid
             localStorage.removeItem("token");
-            localStorage.removeItem("user");
             window.location.href = "/login";
         }
         return Promise.reject(error);

@@ -3,51 +3,86 @@
 import api from "./api";
 
 const authService = {
-    login: async (credentials) => {
-        const response = await api.post("/login", credentials);
-        if (response.data.user) {
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-        }
-        return response.data;
-    },
-
-    logout: async () => {
-        const response = await api.post("/logout");
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        return response.data;
-    },
-
-    me: async () => {
-        const response = await api.get("/me");
-        if (response.data) {
-            localStorage.setItem("user", JSON.stringify(response.data));
-        }
-        return response.data;
-    },
-
-    // Helper functions for localStorage
+    // Helper functions for local storage
     getStoredToken: () => {
         return localStorage.getItem("token");
     },
 
     getStoredUser: () => {
-        const userStr = localStorage.getItem("user");
         try {
-            return userStr ? JSON.parse(userStr) : null;
+            const user = localStorage.getItem("user");
+            return user ? JSON.parse(user) : null;
         } catch (error) {
-            console.error("Failed to parse stored user:", error);
+            console.error("Error parsing stored user:", error);
             return null;
         }
     },
 
     isAuthenticated: () => {
         const token = localStorage.getItem("token");
-        const user = localStorage.getItem("user");
-        return !!(token && user);
+        return !!token;
     },
 
-    clearStorage: () => {
+    setStoredUser: (user) => {
+        if (user) {
+            localStorage.setItem("user", JSON.stringify(user));
+        } else {
+            localStorage.removeItem("user");
+        }
+    },
+
+    setStoredToken: (token) => {
+        if (token) {
+            localStorage.setItem("token", token);
+        } else {
+            localStorage.removeItem("token");
+        }
+    },
+
+    // API Methods
+    login: async (credentials) => {
+        const response = await api.post("/login", credentials);
+
+        // Save to localStorage
+        if (response.data?.token) {
+            authService.setStoredToken(response.data.token);
+        }
+        if (response.data?.user) {
+            authService.setStoredUser(response.data.user);
+        }
+
+        return response;
+    },
+
+    logout: async () => {
+        try {
+            await api.post("/logout");
+        } finally {
+            // Always clear localStorage
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        }
+    },
+
+    me: async () => {
+        const response = await api.get("/me");
+
+        // Update stored user
+        const user =
+            response.data?.data || response.data?.user || response.data;
+        if (user) {
+            authService.setStoredUser(user);
+        }
+
+        return response;
+    },
+
+    updateProfile: (data) => api.put("/profile", data),
+
+    changePassword: (data) => api.put("/change-password", data),
+
+    // Clear all auth data
+    clearAuth: () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
     },

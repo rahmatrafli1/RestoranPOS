@@ -76,7 +76,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             name: "Settings",
             path: "/settings",
             icon: HiCog,
-            roles: ["admin"],
+            roles: ["admin", "cashier", "waiter", "chef"],
         },
     ];
 

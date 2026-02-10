@@ -131,13 +131,16 @@ const SettingsPage = () => {
                     <form
                         onSubmit={handleSubmitProfile(onSubmitProfile)}
                         className="space-y-4"
+                        autoComplete="off"
                     >
                         {/* User Info Display */}
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                             <div className="h-16 w-16 flex-shrink-0">
                                 <div className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center">
                                     <span className="text-primary-700 font-bold text-2xl">
-                                        {user?.username?.charAt(0).toUpperCase()}
+                                        {user?.username
+                                            ?.charAt(0)
+                                            .toUpperCase()}
                                     </span>
                                 </div>
                             </div>
@@ -161,6 +164,7 @@ const SettingsPage = () => {
                                 error={errorsProfile.name?.message}
                                 placeholder="John Doe"
                                 required
+                                autoComplete="off"
                             />
                         </div>
 
@@ -170,6 +174,7 @@ const SettingsPage = () => {
                                 value={user?.username || ""}
                                 disabled
                                 helperText="Username cannot be changed"
+                                autoComplete="off"
                             />
                         </div>
 
@@ -192,6 +197,7 @@ const SettingsPage = () => {
                     <form
                         onSubmit={handleSubmitPassword(onSubmitPassword)}
                         className="space-y-4"
+                        autoComplete="off"
                     >
                         <div>
                             <Input
@@ -201,6 +207,7 @@ const SettingsPage = () => {
                                 error={errorsPassword.current_password?.message}
                                 placeholder="••••••••"
                                 required
+                                autoComplete="off"
                             />
                         </div>
 
@@ -212,6 +219,7 @@ const SettingsPage = () => {
                                 error={errorsPassword.new_password?.message}
                                 placeholder="••••••••"
                                 required
+                                autoComplete="off"
                             />
                         </div>
 
@@ -228,6 +236,7 @@ const SettingsPage = () => {
                                 }
                                 placeholder="••••••••"
                                 required
+                                autoComplete="off"
                             />
                         </div>
 
@@ -265,6 +274,7 @@ const SettingsPage = () => {
                                 <input
                                     type="checkbox"
                                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                    autoComplete="off"
                                 />
                             </div>
 
@@ -281,6 +291,7 @@ const SettingsPage = () => {
                                     type="checkbox"
                                     defaultChecked
                                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                    autoComplete="off"
                                 />
                             </div>
 
@@ -297,6 +308,7 @@ const SettingsPage = () => {
                                     type="checkbox"
                                     defaultChecked
                                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                    autoComplete="off"
                                 />
                             </div>
                         </div>
@@ -308,7 +320,10 @@ const SettingsPage = () => {
 
                             <div>
                                 <label className="form-label">Language</label>
-                                <select className="form-input">
+                                <select
+                                    className="form-input"
+                                    autoComplete="off"
+                                >
                                     <option>English</option>
                                     <option>Bahasa Indonesia</option>
                                 </select>
@@ -316,7 +331,10 @@ const SettingsPage = () => {
 
                             <div>
                                 <label className="form-label">Timezone</label>
-                                <select className="form-input">
+                                <select
+                                    className="form-input"
+                                    autoComplete="off"
+                                >
                                     <option>Asia/Jakarta (GMT+7)</option>
                                     <option>Asia/Makassar (GMT+8)</option>
                                     <option>Asia/Jayapura (GMT+9)</option>
@@ -325,7 +343,10 @@ const SettingsPage = () => {
 
                             <div>
                                 <label className="form-label">Currency</label>
-                                <select className="form-input">
+                                <select
+                                    className="form-input"
+                                    autoComplete="off"
+                                >
                                     <option>IDR (Rp)</option>
                                     <option>USD ($)</option>
                                 </select>

@@ -12,7 +12,7 @@ const MenuItemCard = ({ item, onAddToCart }) => {
       {/* Image */}
       <div className="aspect-square bg-gray-100 overflow-hidden relative">
         <img
-          src={getImageUrl(item.image)}
+          src={getImageUrl(item.image_url)}
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           onError={(e) => {

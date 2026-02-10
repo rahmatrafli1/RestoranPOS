@@ -128,7 +128,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['table', 'user', 'orderItems.menuItem', 'payment']);
+        $order->load(['table', 'user', 'user.role', 'orderItems.menuItem', 'payment']);
 
         return response()->json([
             'message' => 'Order successfully retrieved',
