@@ -27,10 +27,6 @@ const UserList = () => {
             setLoading(true);
             const response = await userService.getAll();
 
-            console.log("=== API Response Debug ===");
-            console.log("Full Response:", response);
-            console.log("Response Data:", response.data);
-
             // Fix: Handle different response structures
             let userData = [];
             if (response.data) {
@@ -50,13 +46,6 @@ const UserList = () => {
                 }
             }
 
-            console.log("Extracted User Data:", userData);
-            console.log("Total Users:", userData.length);
-            if (userData.length > 0) {
-                console.log("First User Structure:", userData[0]);
-                console.log("User Keys:", Object.keys(userData[0]));
-            }
-
             setUsers(userData);
         } catch (error) {
             console.error("Failed to load users:", error);
@@ -74,16 +63,6 @@ const UserList = () => {
     };
 
     const handleEdit = (user) => {
-        console.log("=== Edit User Clicked ===");
-        console.log("User Object:", user);
-        console.log("User ID:", user.id);
-        console.log("User Full Name:", user.full_name);
-        console.log("User Username:", user.username);
-        console.log("User Role:", user.role);
-        console.log("User Is Active:", user.is_active);
-        console.log("User Keys:", Object.keys(user));
-        console.log("=====================");
-
         setSelectedUser(user);
         setIsModalOpen(true);
     };
@@ -143,21 +122,6 @@ const UserList = () => {
             : 0;
         return count;
     };
-
-    // Add console.log for role statistics
-    useEffect(() => {
-        if (users.length > 0) {
-            console.log("=== Role Statistics ===");
-            console.log("Total Users:", users.length);
-            console.log("Admin Count:", getUserCountByRole("admin"));
-            console.log("Cashier Count:", getUserCountByRole("cashier"));
-            console.log("Waiter Count:", getUserCountByRole("waiter"));
-            console.log("Chef Count:", getUserCountByRole("chef"));
-            console.log("Guest Count:", getUserCountByRole("guest"));
-            console.log("Active Users:", getActiveUserCount());
-            console.log("===================");
-        }
-    }, [users]);
 
     if (loading) {
         return <Loading fullScreen text="Loading users..." />;

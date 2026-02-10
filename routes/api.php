@@ -47,20 +47,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('users/bulk-update', [UserController::class, 'bulkUpdate']);
     });
 
-    // Categories (Admin only)
+    // Categories - Read access for all authenticated users
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories/{category}', [CategoryController::class, 'show']);
+
+    // Categories - Write access (Admin only)
     Route::middleware('role:admin')->group(function () {
-        Route::apiResource('categories', CategoryController::class);
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::put('categories/{category}', [CategoryController::class, 'update']);
+        Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
     });
 
-    Route::middleware('role:cashier,waiter')->group(function () {
-        Route::get('categories', [CategoryController::class, 'index']);
-        Route::get('categories/{category}', [CategoryController::class, 'show']);
-    });
-
-    // Menu Items (Admin only for CUD, All for Read)
+    // Menu Items - Read access for all authenticated users
     Route::get('menu-items', [MenuItemController::class, 'index']);
     Route::get('menu-items/{menuItem}', [MenuItemController::class, 'show']);
 
+    // Menu Items - Write access (Admin only)
     Route::middleware('role:admin')->group(function () {
         Route::post('menu-items', [MenuItemController::class, 'store']);
         Route::put('menu-items/{menuItem}', [MenuItemController::class, 'update']);
@@ -68,14 +70,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('menu-items/{menuItem}/toggle-availability', [MenuItemController::class, 'toggleAvailability']);
     });
 
-    // Tables (Admin only for CUD, Kasir can read)
+    // Tables - Read access for staff
     Route::middleware('role:admin,cashier,waiter')->group(function () {
         Route::get('tables', [TableController::class, 'index']);
         Route::get('tables/available', [TableController::class, 'available']);
         Route::get('tables/{table}', [TableController::class, 'show']);
     });
 
-    Route::middleware('role:admin,cashier,waiter')->group(function () {
+    // Tables - Write access (Admin)
+    Route::middleware('role:admin')->group(function () {
         Route::post('tables', [TableController::class, 'store']);
         Route::put('tables/{table}', [TableController::class, 'update']);
         Route::delete('tables/{table}', [TableController::class, 'destroy']);
@@ -90,13 +93,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('orders/{order}/discount', [OrderController::class, 'addDiscount']);
     });
 
-    // Kitchen (Dapur can access)
+    // Kitchen (Chef & Waiter can access)
     Route::middleware('role:admin,chef,waiter')->group(function () {
         Route::get('orders/kitchen/display', [OrderController::class, 'kitchen']);
         Route::put('order-items/{orderItem}/status', [OrderController::class, 'updateItemStatus']);
     });
 
-    // Payments (Kasir only)
+    // Payments (Cashier only)
     Route::middleware('role:admin,cashier')->group(function () {
         Route::post('orders/{order}/payment', [PaymentController::class, 'store']);
         Route::get('payments/{payment}', [PaymentController::class, 'show']);
