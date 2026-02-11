@@ -65,13 +65,10 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
             try {
                 setLoadingRoles(true);
                 const response = await userService.getRoles();
-                console.log("=== Roles API Response ===");
-                console.log("Roles Data:", response.data);
 
                 // Handle response structure
                 const rolesData = response.data?.data || response.data || [];
                 setRoles(rolesData);
-                console.log("Roles Loaded:", rolesData);
             } catch (error) {
                 console.error("Failed to load roles:", error);
                 toast.error("Failed to load roles");
@@ -87,19 +84,7 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
 
     // Set form data when user prop changes
     useEffect(() => {
-        console.log("=== UserForm useEffect ===");
-        console.log("User Prop:", user);
-        console.log("Is Edit Mode:", !!user);
-
         if (user) {
-            console.log("User ID:", user.id);
-            console.log("User Full Name:", user.full_name);
-            console.log("User Username:", user.username);
-            console.log("User Role:", user.role);
-            console.log("User Role ID:", user.role_id);
-            console.log("User Is Active:", user.is_active);
-            console.log("User Object Keys:", Object.keys(user));
-
             const formData = {
                 full_name: user.full_name || "",
                 username: user.username || "",
@@ -109,17 +94,11 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
                 is_active: user.is_active !== undefined ? user.is_active : true,
             };
 
-            console.log("Form Data to Reset:", formData);
             reset(formData);
         }
-        console.log("=====================");
     }, [user, reset]);
 
     const onSubmit = async (data) => {
-        console.log("=== Form Submit ===");
-        console.log("Form Data:", data);
-        console.log("Is Edit:", !!user);
-
         try {
             const payload = {
                 full_name: data.full_name,
@@ -133,9 +112,6 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
                 payload.password = data.password;
                 payload.password_confirmation = data.password_confirmation;
             }
-
-            console.log("Payload to Send:", payload);
-            console.log("User ID:", user?.id);
 
             if (user) {
                 await userService.update(user.id, payload);
@@ -174,6 +150,7 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
                     {...register("full_name")}
                     error={errors.full_name?.message}
                     placeholder="John Doe"
+                    autoComplete="off"
                     required
                 />
             </div>
@@ -186,6 +163,7 @@ const UserForm = ({ user, onSuccess, onCancel }) => {
                     error={errors.username?.message}
                     placeholder="johndoe"
                     required
+                    autoComplete="off"
                 />
             </div>
 
